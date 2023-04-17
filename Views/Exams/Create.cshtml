@@ -1,0 +1,188 @@
+﻿@model StudentTrainingPortal.Models.Exam
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Exam</h4>
+<hr />
+<div class="row">
+    <div class="">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <select class="form-select selectteachers" name="Teacher.Id"></select>
+                <input class="d-none" asp-for="Teacher.Name" value=" "/>
+                <input class="d-none" asp-for="Teacher.Email" value=" " />
+                <input class="d-none" asp-for="Teacher.Password" value=" " />
+                <input class="d-none" asp-for="Teacher.Username" value=" " />
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Questions</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td class="col col-md-10"></td>
+                                <td class="col col-md-2"></td>
+                            </tr>
+                        </thead>
+                        <tbody id="tbbody">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"><input type="button" id="btnAdd" value="Add New Question" class="btn btn-primary" /></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Students</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td class="col col-md-10"></td>
+                                <td class="col col-md-2"></td>
+                            </tr>
+                        </thead>
+                        <tbody id="tbbodyStudent">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"><input type="button" id="btnAddStudent" value="Add New Student" class="btn btn-primary" /></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/site.js"></script>
+<script>
+    var allquestions = {};
+    var allstudents = {};
+    var allteachers = {};
+    $.ajax({
+        url: '/CustomData/GetQuestions',
+        type: "GET",
+        dataType: "JSON",
+        data: {},
+        success: function (questions) {
+            allquestions = questions;
+        }
+    });
+
+    $.ajax({
+        url: '/CustomData/GetStudents',
+        type: "GET",
+        dataType: "JSON",
+        data: {},
+        success: function (students) {
+            allstudents = students;
+        }
+    });
+    $.ajax({
+        url: '/CustomData/GetTeachers',
+        type: "GET",
+        dataType: "JSON",
+        data: {},
+        success: function (teachers) {
+            allteachers = teachers;
+            $(".selectteachers").last().append("<option selected disabled>----- Choose an Teacher -----</option>");
+            $.each(allteachers, function (i, teacher) {
+                $(".selectteachers").last().append("<option value='" + teacher.id + "'>" + teacher.name + "</option>");
+            });
+        }
+    });
+    $(function () {
+
+        $("#btnAdd").click(function () {
+            var count = $("#tbbody >tr").length;
+            $("#tbbody").append("<tr><td class='col col-md-10'>" +
+                "<div class='form-group'>" +
+                "<label class='form-label'>Question : </label>" +
+                "<select class='form-select selectquestions' name='Questions[" + count + "].Id' ></select></div>" +
+                "<div class='form-group'>" +
+                "<input type='text' class='form-control questiontitle d-none' name='Questions[" + count + "].Title' readonly/>" +
+                "<label class='form-label'>Image : </label>" +
+                "<input type='text' class='form-control questionimage' name='Questions[" + count + "].Image' readonly/></div>" +
+                "<div class='form-group'>" +
+                "<label class='form-label'>Max Score : </label>" +
+                "<input type='text' class='form-control questionmaxscore' name='Questions[" + count + "].MaxScore' readonly/></div>" +
+                "</td><td class='col col-md-2'><div class='text-center'><input type='button' class='btnremove btn btn-primary' value='remove'/></div></td></tr>");
+
+            AddQuestionSelectOptions();
+            questionSelectChanged();
+            AddRemoveAction();
+        });
+
+        function AddQuestionSelectOptions() {
+            $(".selectquestions").last().append("<option selected disabled>----- Choose an Question -----</option>");
+            $.each(allquestions, function (i, question) {
+                $(".selectquestions").last().append("<option value='" + question.id + "'>" + question.title + "</option>");
+            });
+        }
+
+        function questionSelectChanged() {
+            $('select.selectquestions').on('change', function () {
+                $(this).parent().parent().children('div.form-group').children('input.questiontitle').val(allquestions[this.value - 1].title);
+                $(this).parent().parent().children('div.form-group').children('input.questionimage').val(allquestions[this.value - 1].image);
+                $(this).parent().parent().children('div.form-group').children('input.questionmaxscore').val(allquestions[this.value - 1].maxScore);
+            });
+        }
+
+        $("#btnAddStudent").click(function () {
+            var count = $("#tbbodyStudent >tr").length;
+            $("#tbbodyStudent").append("<tr><td class='col col-md-10'>" +
+                "<div class='form-group'>" +
+                "<label class='form-label'>Student : </label>" +
+                "<select class='form-select selectstudents' name='Students[" + count + "].Id' ></select></div>" +
+                "</td><td class='col col-md-2'><div class='text-center'><input type='button' class='btnremove btn btn-primary' value='remove'/></div></td></tr>");
+
+            AddStudentSelectOptions();
+            studentSelectChanged();
+            AddRemoveAction();
+        });
+
+        function AddStudentSelectOptions() {
+            $(".selectstudents").last().append("<option selected disabled>----- Choose an Student -----</option>");
+            $.each(allstudents, function (i, student) {
+                $(".selectstudents").last().append("<option value='" + student.id + "'>" + student.name + "</option>");
+            });
+        }
+
+        AddRemoveAction();
+
+        function AddRemoveAction() {
+            $(".btnremove").each(function (index, item) {
+                $(item).click(function () {
+                    $(this).closest('tr').remove();
+                });
+            })
+        }
+    });
+</script>
+

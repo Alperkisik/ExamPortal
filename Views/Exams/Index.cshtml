@@ -1,0 +1,77 @@
+﻿@model IEnumerable<StudentTrainingPortal.Models.Exam>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                Teacher
+            </th>
+            <th>
+                Students
+            </th>
+            <th>
+                Questions
+            </th>
+            <th>
+                Max Score
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Teacher.Id" asp-controller="Teachers">@item.Teacher.Name</a>
+                </td>
+                <td>
+                    @foreach (var student in item.Students)
+                    {
+
+                        <a asp-action="Details" asp-controller="Students" asp-route-id="@student.Id">@student.Name </a>
+                        if (item.Answers.Any(i => i.Student.Id == student.Id))
+                        {
+                            <p>(Solved)</p>
+                        }
+                        else
+                        {
+                            <p>(not Solved)</p>
+                        }
+                    }
+                </td>
+                <td>
+                    @foreach (var questions in item.Questions)
+                    {
+                        <a asp-action="Details" asp-controller="Questions" asp-route-id="@questions.Id">@questions.Title </a>
+                    }
+                </td>
+                <td>
+                    <p>@item.GetMaxScore()</p>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="ExamView" asp-controller="Exams" asp-route-id="@item.Id">Solve</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

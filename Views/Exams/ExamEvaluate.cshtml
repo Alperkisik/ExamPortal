@@ -1,0 +1,82 @@
+﻿@model StudentTrainingPortal.Models.Exam
+
+@{
+    ViewData["Title"] = "Exam Evaluate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Student _student = ViewBag.Student;
+    var Questions = Model.Questions.ToList();
+    var Answers = Model.Answers.ToList();
+}
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<form asp-action="ExamEvaluate" asp-controller="Exams" class="pb-3">
+    <div class="mb-3">
+        <h2>@Html.DisplayNameFor(model => model.Title)</h2>
+        @Html.HiddenFor(model => model.Title)
+        <input class="d-none" value="@Model.Id" name="ExamID" />
+        <dl class="row">
+            @Html.HiddenFor(model => model.Id)
+            @Html.HiddenFor(model => model.Teacher.Id)
+            <dt class="col-sm-2">
+                Prepared By
+            </dt>
+            <dd class="col-sm-10">
+                @Model.Teacher.Name
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">
+                Student
+            </dt>
+            <dd class="col-sm-10">
+                <input class="d-none" name="Students[0].Id" value="@_student.Id" />
+                <input class="form-control" name="Students[0].Name" value="@_student.Name" type="text" readonly />
+            </dd>
+        </dl>
+    </div>
+    <div class="mb-3">
+        @for (int i = 0; i < Questions.Count; i++)
+        {
+            <div class="row row-cols-2 py-3">
+                <div class="col card card-primary">
+                    <div class="card-header">
+                        <h2 class="card-title">@Questions[i].Title | Score : @Questions[i].MaxScore</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Question : </label>
+                            <input class="d-none" name="Questions[@i].Id" value="@Questions[i].Id" />
+                            <input class="form-control" value="@Questions[i].Image" readonly />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <input class="d-none" name="Answers[@i].Id" value="@Answers[i].Id" />
+                            <label class="form-label">Answer : </label>
+                            <input class="form-control" name="Answers[@i].Content" value="@Answers[i].Content" readonly />
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="form-group">
+                            <input class="d-none" name="Answers[@i].Evaluation.AnswerId" value="@Answers[i].Id" />
+                            <label>Comment : </label>
+                            <input class="form-control" name="Answers[@i].Evaluation.Content" />
+                            <label>Score : </label>
+                            <input class="form-control" name="Answers[@i].Evaluation.Score" />
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="true" name="Answers[@i].Evaluation.IsCorrect" id="check[@i]" />
+                                <input type="hidden" value="false" name="Answers[@i].Evaluation.IsCorrect" />
+                                <label class="form-check-label" for="check[@i]">Answer Correct ?</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
